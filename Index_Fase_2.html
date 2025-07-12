@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Tareas</title>
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 90vh;
+            /* Se elimina la transición de background-color para 'logged-in' si se quita la clase */
+            /* transition: background-color 0.3s ease; */ 
+        }
+        .hidden {
+            display: none;
+        }
+        /* Estilos de la sección de inicio de sesión */
+        #login-section {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra original */
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        /* Estilos generales para otras secciones */
+        .section {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra original */
+            margin-bottom: 20px;
+            max-width: 1300px; /* Ancho que habías solicitado */
+            margin-left: auto;
+            margin-right: auto;
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            /* Se eliminan las transiciones y efectos de hover si se quita la interactividad */
+            /* transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; */ 
+        }
+        /* Se elimina el efecto :hover para .section si se quita la interactividad */
+        /* .section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        } */
+
+        h1, h2 {
+            font-family: 'Times New Roman', serif;
+            color: #333;
+            text-align: left;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+        #login-section h1 {
+            text-align: center;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            text-align: left;
+        }
+        input[type="text"],
+        input[type="password"],
+        input[type="date"],
+        textarea,
+        select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            /* Se eliminan las transiciones y efectos de focus si se quita la interactividad */
+            /* transition: border-color 0.2s ease, box-shadow 0.2s ease; */
+        }
+        /* Se eliminan los efectos de :focus para inputs/textareas/selects */
+        /* input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+            outline: none;
+        } */
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            /* Se eliminan las transiciones y efectos de hover/active si se quita la interactividad */
+            /* transition: background-color 0.3s ease, transform 0.1s ease; */
+            margin-top: 10px;
+            /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */
+        }
+        /* Se eliminan los efectos :hover y :active para botones */
+        /* button:hover {
+            background-color: #45a049;
+            transform: translateY(-1px);
+        }
+        button:active {
+            background-color: #3e8e41;
+            transform: translateY(1px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        } */
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+            /* font-weight: bold; */ /* Opcional: mantener si quieres que los mensajes de error sigan en negrita */
+        }
+        #welcome-message {
+            font-weight: normal;
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            table-layout: fixed;
+            /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+            word-wrap: break-word;
+            font-size: 1em;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+            /* font-weight: bold; */ /* Opcional: mantener si quieres encabezados en negrita */
+        }
+        #tasks-table th:nth-child(1),
+        #tasks-table td:nth-child(1) {
+            width: 7%;
+            min-width: 60px;
+        }
+        #tasks-table th:nth-child(2),
+        #tasks-table td:nth-child(2) {
+            width: 15%;
+            min-width: 130px;
+        }
+        #tasks-table th:nth-child(3),
+        #tasks-table td:nth-child(3) {
+            width: 22%;
+            max-width: 350px;
+            min-width: 200px;
+        }
+        #tasks-table th:nth-child(4),
+        #tasks-table td:nth-child(4) {
+            width: 9%;
+            min-width: 90px;
+        }
+        #tasks-table th:nth-child(5),
+        #tasks-table td:nth-child(5) {
+            width: 11%;
+            min-width: 100px;
+        }
+        #tasks-table th:nth-child(6),
+        #tasks-table td:nth-child(6) {
+            width: 9%;
+            min-width: 90px;
+        }
+        #tasks-table th:nth-child(7),
+        #tasks-table td:nth-child(7) {
+            width: 17%;
+            min-width: 180px;
+        }
+        #tasks-table th:nth-child(8),
+        #tasks-table td:nth-child(8) {
+            width: 10%;
+            min-width: 90px;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        /* Se elimina el efecto :hover para tr */
+        /* tr:hover {
+            background-color: #e0f2f7;
+            transition: background-color 0.2s ease;
+        } */
+        #main-content {
+            width: 100%;
+            max-width: 1300px;
+            margin: 20px auto;
+        }
+        .status-select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+            /* Se eliminan las transiciones y efectos de focus */
+            /* transition: border-color 0.2s ease, box-shadow 0.2s ease; */
+        }
+        /* Se elimina el efecto :focus para .status-select */
+        /* .status-select:focus {
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+            outline: none;
+        } */
+
+        .task-crossed-out td {
+            text-decoration: line-through;
+            color: #888;
+            /* background-color: #f0f0f0; */
+        }
+        .task-crossed-out td .status-select {
+            text-decoration: none;
+            color: initial;
+            background-color: white;
+        }
+        #update-fields-button {
+            background-color: #007bff;
+            margin-right: 10px;
+        }
+        /* Se eliminan los efectos :hover y :active para #update-fields-button */
+        /* #update-fields-button:hover {
+            background-color: #0056b3;
+        }
+        #update-fields-button:active {
+            background-color: #004085;
+        } */
+
+        .filter-container {
+            margin-bottom: 15px;
+            text-align: right;
+            /* Se elimina flexbox para volver al comportamiento anterior si lo deseas */
+            /* display: flex; 
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px; */
+        }
+        .filter-container label {
+            display: inline-block;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .filter-container select {
+            width: auto;
+            display: inline-block;
+            margin-bottom: 0;
+        }
+
+        /* Se elimina la clase 'logged-in' para el body si no se va a usar con JS */
+        /* body.logged-in {
+            background-color: #e9f5e9;
+            transition: background-color 0.5s ease;
+        } */
+    </style>
+</head>
+<body>
+    <div id="login-section">
+        <h1>Iniciar Sesión</h1>
+        <label for="username">Usuario:</label>
+        <input type="text" id="username" name="username"><br>
+        <label for="password">Contraseña:</label>
+        <input type="password" id="password" name="password" onkeyup="checkEnter(event)"><br>
+        <button onclick="login()">Ingresar</button>
+        <p id="login-error" class="error-message hidden">Error de autenticación. Verifica tus credenciales.</p>
+    </div>
+
+    <div id="main-content" class="hidden">
+        <hr>
+        <div id="user-info-section" class="section">
+            <h2>Información del Usuario</h2>
+            <p id="welcome-message"></p>
+            <button onclick="logout()">Cerrar Sesión</button>
+        </div>
+
+        <hr>
+        <div class="section">
+            <h2>Registrar Nueva Tarea</h2>
+            <form id="task-form">
+                <label for="task-code">Código de la tarea (ID):</label>
+                <input type="text" id="task-code" required><br>
+
+                <label for="task-title">Título de la tarea:</label>
+                <input type="text" id="task-title" required><br>
+
+                <label for="task-description">Descripción de la tarea:</label>
+                <textarea id="task-description" rows="4" required></textarea><br>
+
+                <label for="start-date">Fecha de inicio:</label>
+                <input type="date" id="start-date" required><br>
+
+                <label for="client-name">Nombre del cliente:</label>
+                <input type="text" id="client-name" required><br>
+
+                <label for="project-id">ID del proyecto:</label>
+                <input type="text" id="project-id" required><br>
+
+                <label for="comments">Comentarios:</label>
+                <textarea id="comments" rows="3"></textarea><br>
+
+                <label for="status">Estatus:</label>
+                <select id="status" disabled>
+                    <option value="Por hacer" selected>Por hacer</option>
+                </select><br>
+
+                <button type="submit">Registrar Tarea</button>
+                <p id="form-error" class="error-message hidden"></p>
+            </form>
+        </div>
+
+        <hr>
+        <div class="section" id="query-section">
+            <h2>Tareas Registradas</h2>
+            <div class="filter-container">
+                <label for="status-filter">Filtrar por estatus:</label>
+                <select id="status-filter" onchange="filterTasksByStatus()">
+                    <option value="Todos">Todos</option>
+                    <option value="Por hacer">Por hacer</option>
+                    <option value="En progreso">En progreso</option>
+                    <option value="Rechazado">Rechazado</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Cerrado">Cerrado</option>
+                    <option value="En pruebas de calidad">En pruebas de calidad</option>
+                    <option value="En validación por el usuario">En validación por el usuario</option>
+                    <option value="En proceso de liberación">En proceso de liberación</option>
+                </select>
+            </div>
+            <table id="tasks-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Título</th>
+                        <th>Descripción</th>
+                        <th>Fecha de Inicio</th>
+                        <th>Cliente</th>
+                        <th>ID Proyecto</th>
+                        <th>Comentarios</th>
+                        <th>Estatus</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <hr>
+        <div class="section hidden" id="edit-task-section">
+            <h2>Modificar Tarea</h2>
+            <form id="edit-task-form">
+                <label for="edit-task-code">Código de la tarea (ID):</label>
+                <input type="text" id="edit-task-code" required readonly><br>
+
+                <label for="edit-task-title">Título de la tarea:</label>
+                <input type="text" id="edit-task-title" required><br>
+
+                <label for="edit-task-description">Descripción de la tarea:</label>
+                <textarea id="edit-task-description" rows="4" required></textarea><br>
+
+                <label for="edit-start-date">Fecha de inicio:</label>
+                <input type="date" id="edit-start-date" required><br>
+
+                <label for="edit-client-name">Nombre del cliente:</label>
+                <input type="text" id="edit-client-name" required><br>
+
+                <label for="edit-project-id">ID del proyecto:</label>
+                <input type="text" id="edit-project-id" required><br>
+
+                <label for="edit-comments-display">Comentarios Existentes:</label>
+                <textarea id="edit-comments-display" rows="3" readonly></textarea><br>
+
+                <label for="add-new-comment">Añadir Nuevo Comentario:</label>
+                <textarea id="add-new-comment" rows="2" placeholder="Escribe un nuevo comentario aquí..."></textarea><br>
+
+                <label for="edit-status">Estatus:</label>
+                <select id="edit-status">
+                    <option value="Por hacer">Por hacer</option>
+                    <option value="En progreso">En progreso</option>
+                    <option value="Rechazado">Rechazado</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Cerrado">Cerrado</option>
+                    <option value="En pruebas de calidad">En pruebas de calidad</option>
+                    <option value="En validación por el usuario">En validación por el usuario</option>
+                    <option value="En proceso de liberación">En proceso de liberación</option>
+                </select><br>
+                
+                <button type="button" id="update-fields-button" onclick="updateTaskAndClose()">Actualizar Campos y Cerrar</button>
+                <button type="button" onclick="cancelEdit()">Cancelar Edición</button>
+                <p id="edit-form-error" class="error-message hidden"></p>
+            </form>
+        </div>
+    </div>
+
+    <script src="Fase2.js"></script>
+</body>
+</html>
